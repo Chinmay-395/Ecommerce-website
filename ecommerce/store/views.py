@@ -10,10 +10,33 @@ def store(request):
 
 
 def cart(request):
-    context = {}
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(
+            customer=customer, completed=False)
+        """ parent class is order and 
+            orderitem is the child class therefore written in lowercase
+            to let django know what we need to fetch ie
+            all the orderitems pertaining to a particular "order" <id>.
+            "order" --> is set in the perivous instruction
+        """
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'get_cart_total': 0, 'get_cart_items': 0}
+    context = {'items': items, 'order': order}
     return render(request, 'store/cart.html', context)
 
 
 def checkout(request):
-    context = {}
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(
+            customer=customer, completed=False)
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'get_cart_total': 0, 'get_cart_items': 0}
+    context = {'items': items, 'order': order}
+    # context = {}
     return render(request, 'store/checkout.html', context)
